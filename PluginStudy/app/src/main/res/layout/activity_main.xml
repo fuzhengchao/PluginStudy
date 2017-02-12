@@ -26,4 +26,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:onClick="onHookInstrumentationClick"/>
+
+    <Button
+        android:text="AIDL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/aidl"
+        android:layout_below="@+id/hook_instrumentation"
+        android:layout_alignRight="@+id/hook_instrumentation"
+        android:layout_alignEnd="@+id/hook_instrumentation"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:onClick="onAIDLClick"/>
 </RelativeLayout>

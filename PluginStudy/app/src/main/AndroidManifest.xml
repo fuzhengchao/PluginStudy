@@ -16,7 +16,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SecondActivity"></activity>
+        <activity android:name=".SecondActivity" />
+
+        <service
+            android:name=".aidl.AdditionService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":aidlprocess">
+
+            <intent-filter>
+                <action android:name="com.qilue.pluginstudy.aidl.AIDL_SERVICE" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
