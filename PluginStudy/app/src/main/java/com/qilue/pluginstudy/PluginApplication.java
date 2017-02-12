@@ -4,6 +4,7 @@ import android.app.Application;
 import android.app.Instrumentation;
 import android.content.Context;
 
+import com.qilue.pluginstudy.hook.HookClipboard;
 import com.qilue.pluginstudy.hook.HookInstrumentation;
 
 import java.lang.reflect.Field;
@@ -44,6 +45,13 @@ public class PluginApplication extends Application {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        // hook 剪切板
+        try {
+            HookClipboard.hookClipboard();
+        } catch (Exception e) {
+
         }
     }
 }
