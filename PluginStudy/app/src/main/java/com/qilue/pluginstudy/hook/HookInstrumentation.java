@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
@@ -38,5 +39,30 @@ public class HookInstrumentation extends Instrumentation {
         }
 
         return null;
+    }
+
+    public static void hookInstrumentation() {
+
+        try {
+            // 先获取到当前的ActivityThread对象
+            Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
+            Method currentActivityThreadMethod = activityThreadClass.getDeclaredMethod("currentActivityThread");
+            currentActivityThreadMethod.setAccessible(true);
+            Object currentActivityThread = currentActivityThreadMethod.invoke(null);
+
+            // 拿到原始的 mInstrumentation字段
+            Field instrumentationField = activityThreadClass.getDeclaredField("mInstrumentation");
+            instrumentationField.setAccessible(true);
+            Instrumentation instrumentation = (Instrumentation) instrumentationField.get(currentActivityThread);
+
+            // 创建代理对象
+            Instrumentation hookInstrumentation = new HookInstrumentation(instrumentation);
+
+            // 偷梁换柱
+            instrumentationField.set(currentActivityThread, hookInstrumentation);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
