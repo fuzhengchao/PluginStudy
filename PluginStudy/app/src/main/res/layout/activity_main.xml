@@ -10,22 +10,17 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qilue.pluginstudy.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:id="@+id/textView" />
-
     <Button
-        android:text="HookInstrumentation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="31dp"
-        android:id="@+id/hook_instrumentation"
-        android:layout_below="@+id/textView"
+        android:text="Dynamic Proxy"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/hook_instrumentation"
+        android:layout_alignEnd="@+id/hook_instrumentation"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:onClick="onHookInstrumentationClick"/>
+        android:onClick="onDynamicProxyClick"/>
 
     <Button
         android:text="AIDL"
@@ -53,4 +48,14 @@
         android:layout_marginTop="23dp"
         android:layout_alignRight="@+id/aidl"
         android:layout_alignEnd="@+id/aidl" />
+
+    <Button
+        android:text="HookInstrumentation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/hook_instrumentation"
+        android:onClick="onHookInstrumentationClick"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

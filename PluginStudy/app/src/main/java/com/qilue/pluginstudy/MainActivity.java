@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.qilue.pluginstudy.aidl.AdditionServiceConnection;
+import com.qilue.pluginstudy.proxy.ProxyTest;
 
 public class MainActivity extends Activity {
     private AdditionServiceConnection mAIDLConnection;
@@ -19,12 +20,17 @@ public class MainActivity extends Activity {
         bindAIDLService();
     }
 
+
     private void bindAIDLService() {
         mAIDLConnection = new AdditionServiceConnection();
         Intent intent = new Intent("com.qilue.pluginstudy.aidl.AIDL_SERVICE");
         intent.setPackage(getPackageName());
         bindService(intent, mAIDLConnection, Context.BIND_AUTO_CREATE);
 
+    }
+
+    public void onDynamicProxyClick(View view) {
+        ProxyTest.testProxy();
     }
 
     public void onHookInstrumentationClick(View view) {
