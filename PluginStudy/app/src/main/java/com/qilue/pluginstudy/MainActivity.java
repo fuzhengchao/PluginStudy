@@ -1,6 +1,7 @@
 package com.qilue.pluginstudy;
 
 import android.app.Activity;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         bindAIDLService();
+
     }
 
 

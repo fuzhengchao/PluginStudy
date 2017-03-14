@@ -14,7 +14,9 @@ import static android.content.Context.CLIPBOARD_SERVICE;
  */
 
 public class HookClipboard {
+
     public static void hookClipboard() throws Exception {
+
         // 下面这一段的意思实际就是: ServiceManager.getService("clipboard");
         // 只不过 ServiceManager这个类是@hide的
         Class<?> serviceManager = Class.forName("android.os.ServiceManager");

@@ -1,5 +1,6 @@
 package com.qilue.pluginstudy.hook;
 
+import android.content.ClipData;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.util.Log;
@@ -13,18 +14,19 @@ import java.lang.reflect.Proxy;
  */
 
 public class BinderProxyHookHandler implements InvocationHandler {
-    IBinder mBase;
-    Class<?> mStub;
-    Class<?> mIinterface;
+    private Class<?> mIinterface;
+    private Class<?> mSubClass;
+    private IBinder mBase;
+
 
     public BinderProxyHookHandler(IBinder base) {
-        this.mBase = base;
+        mBase = base;
 
         try {
-            this.mStub = Class.forName("android.content.IClipboard$Stub");
-            this.mIinterface = Class.forName("android.content.IClipboard");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            mIinterface = Class.forName("android.content.IClipboard");
+            mSubClass = Class.forName("android.content.IClipboard$Stub");
+        } catch (Exception e) {
+
         }
     }
 
@@ -33,9 +35,7 @@ public class BinderProxyHookHandler implements InvocationHandler {
         if ("queryLocalInterface".equals(method.getName())) {
             Log.d("qilue", "hook queryLocalInterface");
 
-            return Proxy.newProxyInstance(proxy.getClass().getClassLoader(),
-                    new Class[]{IBinder.class, IInterface.class, this.mIinterface},
-                    new BinderHookHandler(mBase, mStub));
+            return Proxy.newProxyInstance(proxy.getClass().getClassLoader(), new Class[] {IInterface.class, mIinterface}, new BinderHookHandler(mBase, mSubClass));
         }
 
         return method.invoke(mBase, args);
