@@ -4,6 +4,7 @@ import android.app.Application;
 import android.app.Instrumentation;
 import android.content.Context;
 
+import com.qilue.pluginstudy.hook.HookActivityManager;
 import com.qilue.pluginstudy.hook.HookClipboard;
 import com.qilue.pluginstudy.hook.HookInstrumentation;
 
@@ -25,11 +26,13 @@ public class PluginApplication extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
 
-        HookInstrumentation.hookInstrumentation();
+//        HookInstrumentation.hookInstrumentation();
 
         // hook 剪切板
         try {
+            HookActivityManager.hookActivityManager();
             HookClipboard.hookClipboard();
+
         } catch (Exception e) {
 
         }
