@@ -23,11 +23,12 @@
             android:enabled="true"
             android:exported="false"
             android:process=":aidlprocess">
-
             <intent-filter>
                 <action android:name="com.qilue.pluginstudy.aidl.AIDL_SERVICE" />
             </intent-filter>
         </service>
+
+        <!--<activity android:name=".NoRegActivity"></activity>-->
     </application>
 
 </manifest>

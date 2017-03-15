@@ -1,14 +1,17 @@
 package com.qilue.pluginstudy.hook;
 
-import android.os.IBinder;
-import android.os.IInterface;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.os.Handler;
+import android.util.Log;
+
+import com.qilue.pluginstudy.SecondActivity;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Map;
 
-import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
  * Created by fuzhengchao on 17/3/14.
@@ -17,25 +20,85 @@ import static android.content.Context.ACTIVITY_SERVICE;
 public class HookActivityManager {
 
     public static void hookActivityManager() throws Exception {
+        hookAmsNative();
 
-        Class<?> amsClass = Class.forName("android.app.IActivityManager");
+        replaceHCallback();
+    }
 
-        // 下面这一段的意思实际就是: ServiceManager.getService("clipboard");
-        // 只不过 ServiceManager这个类是@hide的
-        Class<?> serviceManager = Class.forName("android.os.ServiceManager");
-        Method getService = serviceManager.getDeclaredMethod("getService", String.class);
-        IBinder rawBinder = (IBinder) getService.invoke(null, ACTIVITY_SERVICE);
 
-        // 然后在 queryLocalInterface 返回一个IInterface对象, hook掉我们感兴趣的方法即可.
-        IBinder hookedBinder = (IBinder) Proxy.newProxyInstance(serviceManager.getClassLoader(),
-                new Class<?>[]{IBinder.class},
-                new AMSProxyHookHandler(rawBinder));
+    private static void replaceHCallback() throws Exception {
+        // 先获取到当前的ActivityThread对象
+        Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
+        Field activityThreadField = activityThreadClass.getDeclaredField("sCurrentActivityThread");
+        activityThreadField.setAccessible(true);
+        Object activityThreadObj = activityThreadField.get(null);
 
-        // 把这个hook过的Binder代理对象放进ServiceManager的cache里面
-        // 以后查询的时候 会优先查询缓存里面的Binder, 这样就会使用被我们修改过的Binder了
-        Field cacheField = serviceManager.getDeclaredField("sCache");
-        cacheField.setAccessible(true);
-        Map<String, IBinder> cache = (Map) cacheField.get(null);
-        cache.put(ACTIVITY_SERVICE, hookedBinder);
+        Field hHandlerField = activityThreadClass.getDeclaredField("mH");
+        hHandlerField.setAccessible(true);
+        // 获取 H Handler
+        Object hHandler =  hHandlerField.get(activityThreadObj);
+
+        Class<?> handlerClass = Handler.class;
+        Field callbackField = handlerClass.getDeclaredField("mCallback");
+        callbackField.setAccessible(true);
+        callbackField.set(hHandler, new HookHHandlerCallback());
+
+    }
+
+    private static void hookAmsNative() throws Exception {
+        Class<?> activityManagerNativeClass = Class.forName("android.app.ActivityManagerNative");
+        Field defaultField = activityManagerNativeClass.getDeclaredField("gDefault");
+        defaultField.setAccessible(true);
+        Object gDefault = defaultField.get(null); // 获取到 gDefault 变量的值
+
+        // 反射 SingleTon
+        Class<?> singletonClass = Class.forName("android.util.Singleton");
+        Field instanceField = singletonClass.getDeclaredField("mInstance");
+        instanceField.setAccessible(true);
+
+        // 获取 ActivityManager 对象
+        Object activityManagerObj = instanceField.get(gDefault);
+
+        Class<?> iActivityManager = Class.forName("android.app.IActivityManager");
+
+        // 获取 ams 动态代理
+        Object amsProxy = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                new Class[] {iActivityManager}, new AmsHookHandler(activityManagerObj));
+
+        // 用代理替换原有 ams
+        instanceField.set(gDefault, amsProxy);
+    }
+
+    private static class AmsHookHandler implements InvocationHandler {
+        private Object mAmsObj;
+
+        public AmsHookHandler(Object amsObj) {
+            mAmsObj = amsObj;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if ("startActivity".equals(method.getName())) {
+                Log.e("hook", "hook ActivityManager startActivity");
+
+                int intentIndex = 0;
+                for (int i = 0; i < args.length; i++) {
+                    if (args[i] instanceof Intent) {
+                        intentIndex = i;
+                        break;
+                    }
+                }
+
+                Intent originIntent = (Intent) args[intentIndex];
+                Intent newIntent = new Intent();
+                newIntent.setComponent(new ComponentName("com.qilue.pluginstudy", SecondActivity.class.getCanonicalName()));
+                newIntent.putExtra("origin_intent", originIntent);
+                args[intentIndex] = newIntent;
+
+            }
+
+
+            return method.invoke(mAmsObj, args);
+        }
     }
 }

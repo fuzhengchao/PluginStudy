@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
     }
 
     public void onHookInstrumentationClick(View view) {
-        startActivity(new Intent(this, SecondActivity.class));
+        startActivity(new Intent(this, NoRegActivity.class));
     }
 
     public void onAIDLClick(View view) {
