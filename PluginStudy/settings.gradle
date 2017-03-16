@@ -1,1 +1,3 @@
-include ':app'
+include ':app', ':javalibrary'
+include ':plugin_a'
+include ':common'

@@ -5,10 +5,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.qilue.pluginstudy.aidl.AdditionServiceConnection;
+import com.qilue.pluginstudy.classloader.ClassloaderTest;
 import com.qilue.pluginstudy.proxy.ProxyTest;
 
 public class MainActivity extends Activity {
@@ -19,6 +21,16 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         bindAIDLService();
+
+        ClassLoader classLoader = getClassLoader();
+        if (null != classLoader) {
+            Log.e("test", "classloader: " + classLoader.toString());
+
+            while (null != classLoader.getParent()) {
+                classLoader = classLoader.getParent();
+                Log.e("test", "classloader2: " + classLoader.toString());
+            }
+        }
 
     }
 
@@ -42,5 +54,9 @@ public class MainActivity extends Activity {
     public void onAIDLClick(View view) {
         int a = mAIDLConnection.add(5, 3);
         Toast.makeText(this, "result: " + a, Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClassLoaderClick(View view) {
+        ClassloaderTest.testLoadClass(this);
     }
 }
